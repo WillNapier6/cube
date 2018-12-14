@@ -31,7 +31,7 @@ class Cube():
         self.diagnol = self.sidelength * sqrt(2)
         self.updateVertices()
         self.faces = [Face(self.vertices[0:8], frame.canvas, 'green'), Face(self.vertices[8:16], frame.canvas, 'blue'), Face(self.vertices[0:2] + self.vertices[2:4] + self.vertices[10:12] + self.vertices[8:10], frame.canvas, 'yellow'),
-                      Face(self.vertices[2:6] + self.vertices[12:14] + self.vertices[10:12], frame.canvas, 'orange'),  Face(self.vertices[4:8] + self.vertices[14:16] + self.vertices[12:14], frame.canvas, 'purple'), Face(self.vertices[6:8] + self.vertices[14:16] + self.vertices[8:10] + self.vertices[0:2], frame.canvas, 'pink')]
+                      Face(self.vertices[2:6] + self.vertices[12:14] + self.vertices[10:12], frame.canvas, 'orange'),  Face(self.vertices[4:8] + self.vertices[14:16] + self.vertices[12:14], frame.canvas, 'white'), Face(self.vertices[6:8] + self.vertices[14:16] + self.vertices[8:10] + self.vertices[0:2], frame.canvas, 'red')]
     def redraw(self, canvas, up):
         self.updateVertices()
         self.updateFaces()
@@ -61,16 +61,40 @@ class Cube():
             self.faces[1].draw()
             self.faces[0].canvas.itemconfigure(self.faces[0].shape, state='hidden')
 
-        if (self.xTilt%360 > 0 and self.xTilt%360 <= 45) or self.xTilt%360 < 359 and self.xTilt%360 >= 315:
+        if (self.xTilt%360 >= 0 and self.xTilt%360 <= 45) or self.xTilt%360 < 359 and self.xTilt%360 >= 315:
+            self.faces[2].canvas.itemconfigure(self.faces[2].shape, state='normal')
+            self.faces[3].canvas.itemconfigure(self.faces[3].shape, state='normal')
             self.faces[2].draw()
             self.faces[3].draw()
             self.faces[4].canvas.itemconfigure(self.faces[4].shape,  state='hidden')
             self.faces[5].canvas.itemconfigure(self.faces[5].shape, state='hidden')
+        elif (self.xTilt%360 > 45 and self.xTilt%360 <= 135) :
+            self.faces[2].canvas.itemconfigure(self.faces[2].shape, state='normal')
+            self.faces[5].canvas.itemconfigure(self.faces[5].shape, state='normal')
+            self.faces[2].draw()
+            self.faces[5].draw()
+            self.faces[3].canvas.itemconfigure(self.faces[3].shape,  state='hidden')
+            self.faces[4].canvas.itemconfigure(self.faces[4].shape, state='hidden')
+        elif (self.xTilt % 360 > 135 and self.xTilt % 360 <= 225):
+            self.faces[5].canvas.itemconfigure(self.faces[5].shape, state='normal')
+            self.faces[4].canvas.itemconfigure(self.faces[4].shape, state='normal')
+            self.faces[5].draw()
+            self.faces[4].draw()
+            self.faces[2].canvas.itemconfigure(self.faces[2].shape, state='hidden')
+            self.faces[3].canvas.itemconfigure(self.faces[3].shape, state='hidden')
+        else:
+            self.faces[4].canvas.itemconfigure(self.faces[4].shape, state='normal')
+            self.faces[3].canvas.itemconfigure(self.faces[3].shape, state='normal')
+            self.faces[4].draw()
+            self.faces[3].draw()
+            self.faces[2].canvas.itemconfigure(self.faces[2].shape, state='hidden')
+            self.faces[5].canvas.itemconfigure(self.faces[5].shape, state='hidden')
+
 
 class Face():
     def __init__(self, vertices, canvas, color):
         self.vertices = vertices
-        self.shape = canvas.create_polygon(vertices, fill= color, width=2)
+        self.shape = canvas.create_polygon(vertices, fill= color, outline = 'black', width=4)
         self.canvas = canvas
     def draw(self):
         self.canvas.coords(self.shape, self.vertices)
@@ -82,34 +106,36 @@ class Point():
         self.y = y
 
 def left(event):
-    frame.cube.xTilt = frame.cube.xTilt + 3
+    frame.cube.xTilt = frame.cube.xTilt + 10
     frame.cube.redraw(frame.canvas, False)
     print(frame.cube.xTilt%360)
 
 def right(event):
-    frame.cube.xTilt = frame.cube.xTilt - 3
+    frame.cube.xTilt = frame.cube.xTilt - 10
     frame.cube.redraw(frame.canvas, False)
     print(frame.cube.xTilt%360)
 
 def up(event):
     if frame.cube.yTilt > -90 :
-        frame.cube.yTilt = frame.cube.yTilt - 5
+        frame.cube.yTilt = frame.cube.yTilt - 15
         frame.cube.redraw(frame.canvas, True)
         print(frame.cube.yTilt)
 
 def down(event):
     if frame.cube.yTilt < 90:
-        frame.cube.yTilt = frame.cube.yTilt + 5
+        frame.cube.yTilt = frame.cube.yTilt + 15
         frame.cube.redraw(frame.canvas, True)
         print(frame.cube.yTilt)
 
 def bigger(event):
     frame.cube.sidelength = frame.cube.sidelength + 5
+    frame.cube.diagnol = frame.cube.sidelength * sqrt(2)
     frame.cube.redraw(frame.canvas, True)
     print('o')
 
 def smaller(event):
     frame.cube.sidelength = frame.cube.sidelength - 5
+    frame.cube.diagnol = frame.cube.sidelength * sqrt(2)
     frame.cube.redraw(frame.canvas, True)
     print('o')
 
@@ -121,6 +147,6 @@ root.bind('<Up>', up)
 root.bind('<Down>', down)
 root.bind('w', bigger)
 root.bind('s', smaller)
-
+frame.cube.redraw(frame.canvas, True)
 root.geometry("600x600+300+300")
 root.mainloop()
